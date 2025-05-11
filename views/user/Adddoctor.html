@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    <link rel="icon" href= "../images/adminlogo.jpg"/>
+    <title>Add</title>
+    <link rel="stylesheet" href="../CSS/Admin.css">
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Admin</h2>
+        <hr />
+        <ul>
+            <li id="home-link">
+                <a href="../Pages/main.html"><i class="fa-solid fa-house"></i>Home</a>
+            </li>
+            <li id="add-student-link">
+                <a href="../pages/AddStudent.html">
+                    <i class="fa-solid fa-plus"></i>Add Student
+                </a>
+            </li>
+            <li id="add-doctor-link">
+                <a href="../pages/Adddoctor.html">
+                    <i class="fa-solid fa-plus"></i>Add Doctor</a
+                >
+            </li>
+        </ul>
+    </div>
+    <div class="main-content">
+        <div class="navbar">
+            <div class="logo"><img src="../images/fcilogo.jpg"></div>
+            <div class="search-container2">
+                <input type="text" id="search-field" placeholder="Search by Academic ID">
+                <a href="../Pages/SearchResult.html"><button id="search-button">Search</button></a>
+            </div>
+        </div>
+
+        <div class="changed-section" id="add-student-section">
+        <form id="add-student-form" method="post" enctype="multipart/form-data" style="flex-direction: column; align-items: center;">
+            <div class="inputs" style="justify-content: center; display: flex; flex-direction: column;">
+                <input name="FullName" type="text" placeholder="FullName" required>
+                <input name="ProfessorID" type="number" placeholder="Professor ID" required>
+                <input name="Email" type="email" placeholder="Email" required>
+                <input name="password" type="password" placeholder="Password" required>
+                <input name="TaughtCourses" type="text" placeholder="Taught Courses" required>
+            </div>
+            <div class="buttons">
+                <button type="submit" name="submit">Add</button>
+                <button type="reset">Reset</button>
+            </div>
+
+        </form>
+            <div id="add-student-message"></div>
+        </div>
+    </div>
+</body>
+</html>

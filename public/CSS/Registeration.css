@@ -1,0 +1,128 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f5f5f5;
+    padding: 0;
+    direction: ltr;
+}
+/* Navbar Styles */
+.navbar {
+    background-color: #fff;
+    padding: 10px 30px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar .logo img {
+    height: 50px;
+    width: auto;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 30px;
+    align-items: center;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.nav-links a:hover {
+    color: #007bff;
+}
+
+.nav-links #profile {
+    font-size: 20px;
+}
+
+.tabs {
+    background: #eaf6fb;
+    padding: 10px 0 0 0;
+    display: flex;
+    justify-content: flex-start;
+    border-bottom: 2px solid #b6d7e9;
+}
+
+.tab {
+    background: #eaf6fb;
+    border: none;
+    border-radius: 5px 5px 0 0;
+    color: #1b6fa8;
+    font-size: 16px;
+    padding: 10px 30px;
+    margin-right: 5px;
+    margin-left: 0;
+    cursor: pointer;
+    outline: none;
+    transition: background 0.2s;
+}
+
+.tab.active, .tab:hover {
+    background: #b6d7e9;
+    color: #fff;
+}
+
+table {
+    width: 98%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    background: #fff;
+    box-shadow: 0 2px 8px #e0e0e0;
+}
+
+th, td {
+    border: 1px solid #b6d7e9;
+    padding: 8px 6px;
+    text-align: center;
+    font-size: 15px;
+}
+
+th {
+    background: #eaf6fb;
+    color: #1b6fa8;
+    font-weight: bold;
+}
+
+tr:nth-child(even) {
+    background: #f7fbfd;
+}
+
+.action-btn {
+    font-size: 24px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    outline: none;
+    transition: color 0.2s;
+    font-weight: 900;
+    padding: 0 5px;
+}
+
+.action-btn.add {
+    color: #27ae60 !important;
+}
+
+.action-btn.remove {
+    color: #e74c3c;
+    font-size: 24px;
+    font-weight: 900;
+}
+
+.action-btn:active {
+    transform: scale(1.1);
+}

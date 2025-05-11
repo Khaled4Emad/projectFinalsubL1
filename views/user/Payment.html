@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Payment System</title>
+    <link rel="stylesheet" href="../CSS/Payment.css">
+</head>
+<body>
+    <div class="container">
+        <div class="credit-card-wrapper">
+            <div class="credit-card" id="creditCard">
+                <div class="card-front">
+                    <div class="chip"></div>
+                    <div class="card-number" id="cardNumberDisplay">XXXX XXXX XXXX XXXX</div>
+                    <div class="card-details">
+                        <div class="valid-thru">
+                            <span>VALID<br>THRU</span>
+                            <span class="expiry" id="expiryDisplay">MM/YY</span>
+                        </div>
+                    </div>
+                    <div class="cardFotter">
+                        <div class="card-holder" id="cardHolderDisplay">CARD HOLDER</div>
+                        <img src="../images/visa--600.png" alt="visa">
+                    </div>
+                </div>
+                <div class="card-back">
+                    <div class="magnetic-strip"></div>
+                    <div class="cvv-strip">
+                        <div class="cvv-label"></div>
+                        <div class="cvv-value" id="cvvDisplay">XXXX</div>
+                    </div>
+                    <div class="back-logo">
+                        <div class="whitelogo"></div>
+                        <img src="../images/visa--600.png" alt="visa">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <form class="payment-form" id="paymentForm">
+            <label for="cardNumber">Number</label>
+            <input type="text" id="cardNumber" name="cardNumber" placeholder="XXXX XXXX XXXX XXXX" maxlength="19" required autocomplete="off">
+
+            <div class="row">
+                <div class="column">
+                    <label for="expiryDate">Expired Date</label>
+                    <input type="text" id="expiryDate" name="expiryDate" placeholder="MM/YY" maxlength="5" required autocomplete="off">
+                </div>
+                <div class="column">
+                    <label for="cvv">CVV</label>
+                    <input type="text" id="cvv" name="cvv" placeholder="XXXX" maxlength="4" required autocomplete="off">
+                </div>
+            </div>
+
+            <label for="cardHolder">Card Holder</label>
+            <input type="text" id="cardHolder" name="cardHolder" placeholder="CARD HOLDER" required autocomplete="off">
+
+            <button type="submit" class="add-card-btn">Pay</button>
+        </form>
+    </div>
+    <script src="Payment.js"></script>
+    <script>
+        // Card flip logic
+        const card = document.getElementById('creditCard');
+        const cvvInput = document.getElementById('cvv');
+        const formInputs = document.querySelectorAll('.payment-form input');
+
+        cvvInput.addEventListener('focus', () => {
+            card.classList.add('flipped');
+        });
+        cvvInput.addEventListener('blur', () => {
+            card.classList.remove('flipped');
+        });
+        formInputs.forEach(input => {
+            if(input.id !== 'cvv') {
+                input.addEventListener('focus', () => {
+                    card.classList.remove('flipped');
+                });
+            }
+        });
+
+        // Card number formatting and live display
+        const cardNumberInput = document.getElementById('cardNumber');
+        const cardNumberDisplay = document.getElementById('cardNumberDisplay');
+        cardNumberInput.addEventListener('input', function(e) {
+            let value = this.value.replace(/\D/g, ''); // Remove non-digits
+            value = value.slice(0, 16); // Limit to 16 digits
+            let formatted = value.replace(/(.{4})/g, '$1 ').trim();
+            this.value = formatted;
+            cardNumberDisplay.textContent = formatted.padEnd(19, 'X').replace(/ /g, ' ');
+        });
+
+        // Card holder live display
+        const cardHolderInput = document.getElementById('cardHolder');
+        const cardHolderDisplay = document.getElementById('cardHolderDisplay');
+        cardHolderInput.addEventListener('input', function() {
+            let value = this.value.toUpperCase();
+            cardHolderDisplay.textContent = value || 'CARD HOLDER';
+        });
+
+        // Expiry live display
+        const expiryInput = document.getElementById('expiryDate');
+        const expiryDisplay = document.getElementById('expiryDisplay');
+        expiryInput.addEventListener('input', function() {
+            let value = this.value.replace(/[^0-9]/g, '');
+            if (value.length > 4) value = value.slice(0, 4);
+            if (value.length > 2) value = value.slice(0,2) + '/' + value.slice(2);
+            this.value = value;
+            expiryDisplay.textContent = value || 'MM/YY';
+        });
+
+        // CVV live display
+        const cvvDisplay = document.getElementById('cvvDisplay');
+        cvvInput.addEventListener('input', function() {
+            let value = this.value.replace(/\D/g, '');
+            value = value.slice(0, 4);
+            this.value = value;
+            cvvDisplay.textContent = value || 'XXXX';
+        });
+
+        // Show alert on pay
+        document.getElementById('paymentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('paid successfully');
+        });
+    </script>
+</body>
+</html>

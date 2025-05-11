@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/x-icon" href="/images/menoufia-universitylogo.jpg">
+    <title>Menoufia University</title>
+    <link rel="stylesheet" href="/CSS/indexPage.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <section>
+        <div class="form-box">
+            <div class="form-value">
+                <form id="loginForm" method="post" action="/login">
+                    <h2>Login</h2>
+                    <div class="input-box">
+                        <ion-icon name="mail-outline"></ion-icon>
+                        <input type="text" name="email" required>
+                        <label>Email</label>
+                    </div>
+                    <div class="input-box">
+                        <ion-icon name="lock-closed-outline"></ion-icon>
+                        <input type="password" name="password" required>
+                        <label>Password</label>
+                    </div>
+                    <div class="f-password">
+                        <a href="#">Forget Password</a>
+                    </div>
+                    <div class="user-type">
+                        <div class="student">
+                            <input type="radio" id="student" name="userType" value="student" required>
+                            <label for="student" style="padding-right: 30px;">Student</label>
+                        </div>
+                        <div class="doctor">
+                            <input type="radio" id="doctor" name="userType" value="doctor" required>
+                            <label for="doctor">Doctor</label>
+                        </div>
+                        <div class="admin">
+                            <input type="radio" id="admin" name="userType" value="admin" required>
+                            <label for="admin">Admin</label>
+                        </div>
+                    </div>
+                    <button type="submit">Log In</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const form = document.getElementById('loginForm');
+            const userType = form.querySelector('input[name="userType"]:checked').value;
+            
+            // Redirect based on user type
+            if (userType === 'admin') {
+                window.location.href = '/user/main.html';
+            } else if (userType === 'student') {
+                window.location.href = '/user/MainPageStudent.html';
+            } else if (userType === 'doctor') {
+                window.location.href = '/user/mainForDoctor.html';
+            }
+            
+            return false;
+        }
+    </script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</body>
+</html>

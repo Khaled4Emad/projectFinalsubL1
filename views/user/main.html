@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css"
+    />
+    <link rel="icon" href="../images/adminlogo.jpg" />
+    <title>Admin</title>
+    <link rel="stylesheet" href="/CSS/MainPageStudent.css" />
+  </head>
+  <body>
+    <div class="sidebar">
+      <h2>Admin</h2>
+      <hr />
+      <ul>
+        <li id="home-link">
+          <a href="/views/main.html"><i class="fa-solid fa-house"></i>Home</a>
+        </li>
+        <li id="add-student-link">
+          <a href="../pages/AddStudent.html"
+            ><i class="fa-solid fa-plus"></i>Add Student</a
+          >
+        </li>
+        <li id="add-doctor-link">
+          <a href="../pages/Adddoctor.html"
+            ><i class="fa-solid fa-plus"></i>Add Doctor</a
+          >
+        </li>
+      </ul>
+    </div>
+    <div class="main-content">
+      <div class="navbar">
+        <div class="logo"><img src="../images/fcilogo.jpg" /></div>
+        <div class="search-container">
+          <form>
+            <input
+              type="text"
+              placeholder="Search by Academic ID"
+            />
+            <a href="../pages/SearchResult.html"><button type="button">Search</button></a>
+          </form>
+        </div>
+      </div>
+      <div class="changed-section" id="home-section">
+        <div class="home-content">
+          <img src="../images/FCI-MU.jpg" alt="College Image" />
+          <h1>Welcome to Faculty Computer and Information</h1>
+          <p id="paraf">
+            One of the most important faculties of Menoufia University...
+          </p>
+        </div>
+      </div>
+    </div>
+    <script src="../JS/Admin.js"></script>
+  </body>
+</html>

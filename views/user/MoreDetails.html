@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    <link rel="icon" href="../images/adminlogo.jpg"/>
+    <title>Student Details</title>
+    <link rel="stylesheet" href="../CSS/Admin.css">
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Admin</h2>
+        <hr>
+        <ul>
+            <li id="home-link"><a href="../Pages/main.html"><i class="fa-solid fa-house"></i>Home</a></li>
+            <li id="add-student-link"><a href="../pages/AddStudent.html"><i class="fa-solid fa-plus"></i>Add Student</a></li>
+        </ul>
+    </div>
+    <div class="main-content">
+        <div class="navbar">
+            <div class="logo"><img src="../images/fcilogo.jpg"></div>
+            <div class="search-container">
+                <form action="../Pages/SearchResult.html" method="GET">
+                    <input type="text" id="search-field" name="search" placeholder="Search by Academic ID" required>
+                    <button type="submit" id="search-button">Search</button>
+                </form>
+            </div>
+
+        </div>
+        <div class="changed-section" id="student-details-section">
+            <div class="moredetailscontainer">
+                
+                <div class="personal-info">
+                    <h2>Personal Information</h2>
+                    <div class="personalinfoandpic">
+                        <ul>
+                            <li><strong>Name:</strong>sssssssss</li>
+                            <li><strong>SSN:</strong>ssssssssssssss</li>
+                            <li><strong>Phone Number:</strong>sssssssssssss</li>
+                            <li><strong>High School Grades:</strong>sssssssssssss</li>
+                        </ul>
+                        <div class="profile-picture">
+                            <img src='../images/my profile picture.jpg' alt='Default Picture' style='width: 150px; height: 150px; border-radius: 50%;'>
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="academic-info">
+                    <h2>Academic Information</h2>
+                    <ul>
+                        <li><strong>Academic ID:sssssssssssssssssss</strong></li>
+                        <li><strong>GPA:ssssssssssssssssssssssssssss</strong></li>
+                        <li><strong>Credit Hours:sssssssssssssssssssssssssss</strong></li>
+                        <li><strong>Academic Year:sssssssssssssssssss</strong></li>
+                        <li><strong>Password:sssssssssssssssssss</strong></li>
+                    </ul>
+                </div>
+        
+                <div class="expenses">
+                    <h2>Expenses</h2>
+                    <ul>
+                        <li><strong>Total Expenses:</strong>1111111111</li>
+                        <li><strong>Status:</strong>
+                            <div id="paymentStatus">
+                                Paid
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+    <script src="../JS/Admin.js"></script>
+</body>
+</html>
