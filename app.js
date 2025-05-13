@@ -47,7 +47,7 @@ process.on("SIGINT", async () => {
   process.exit(0);
 });
 
-const doctorsConfig = {
+const professorsConfig = {
   connectionString: `Driver={${process.env.DB_DRIVER}};Server=${process.env.DB_SERVER};Database=ProfessorsDB;Trusted_Connection=Yes;`,
   options: {
     trustServerCertificate: true,
@@ -62,7 +62,7 @@ const doctorsConfig = {
 };
 
 // Create a connection pool for doctors
-const doctorsPoolPromise = new sql.ConnectionPool(doctorsConfig)
+const doctorsPoolPromise = new sql.ConnectionPool(professorsConfig)
   .connect()
   .then((pool) => {
     console.log("Connected to Doctors Database");
@@ -94,6 +94,10 @@ app.get("/", (req, res) => {
 // Student routes - now protected with student ID check
 app.get("/student", (req, res) => {
   res.sendFile(path.join(__dirname, "views", "user", "MainPageStudent.html"));
+});
+
+app.get("/doctor", (req, res) => {
+  res.sendFile(path.join(__dirname, "views", "user", "mainForDoctor.html"));
 });
 
 app.get("/student/profile", (req, res) => {
@@ -186,7 +190,7 @@ app.get("/api/student/course-load", async (req, res) => {
 app.post("/login", async (req, res) => {
   const { email, password, userType } = req.body;
 
-  let config, table, emailColumn, passwordColumn;
+  let config, table, emailColumn, passwordColumn, pool, payload;
 
   if (userType === "student") {
     config = studentsConfig;
@@ -201,7 +205,12 @@ app.post("/login", async (req, res) => {
   }
 
   try {
-    const pool = await poolPromise;
+     
+    if (userType === "student") {
+      pool = await poolPromise;
+    } else if (userType === "doctor") {
+      pool = await doctorsPoolPromise;
+    }
     const request = pool.request();
 
     // Define the SQL query with parameters
@@ -219,10 +228,18 @@ app.post("/login", async (req, res) => {
       const user = result.recordset[0];
 
       // Create a payload to include in the JWT (e.g., user ID and user type)
-      const payload = {
-        studentId: user.AcademicID, // Or user ID for doctor
-        userType: userType
-      };
+      if (userType === "student"){
+        payload = {
+          studentId: user.AcademicID,
+          userType: userType
+        };
+      }else if (userType === "doctor") {
+        payload = {
+          professorId: user.ProfessorID,
+          userType: userType
+        };
+        console.log("payload"+payload)
+      }
 
       // Sign the JWT with the payload and secret key
       const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, { expiresIn: '1h' }); // Token expires in 1 hour
