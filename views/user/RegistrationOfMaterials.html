@@ -2,66 +2,70 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>Registration of materials</title>
+    <title>Registration of Materials</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
     <link rel="stylesheet" href="../CSS/Registeration.css">
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar">
-        <div class="logo"><img src="../images/menoufia-universitylogo.jpg" alt=""></div>
-        <ul class="nav-links">
-            <li><a href="../pages/MainPageStudent.html#Main">Home</a></li>
-            <li><a href="../pages/MainPageStudent.html#about">About Us</a></li>
-            <li><a href="../pages/MainPageStudent.html#contact">Contact Us</a></li>
-            <li><a id="profile" href="../pages/ProfilePageStudent.html"><i class="fa-regular fa-user"></i></a></li>
-        </ul>
-    </nav>
-    <div class="tabs">
-        <button class="tab active" onclick="showTerm(1, this)">First term</button>
-        <button class="tab" onclick="showTerm(2, this)">Second term</button>
-    </div>
-    <div id="table-container"></div>
-    <script>
-        const courses = {
-    1: [
-        {
-            name:"Distributed database",
-            code: "IS532A",
-            hours: 3,
-            lecturer: "Asmaa Haroun",
-            seats: 40,
-            registered: false
-        },
-    ],
-    2: [
-        {
-            name: "Big Data",
-            code: "IS651",
-            hours: 3,
-            lecturer: "Nesmaa",
-            seats: 30,
-            registered: true
-        },
-    ],
-    
-};
+<nav class="navbar">
+    <div class="logo"><img src="../images/menoufia-universitylogo.jpg" alt=""></div>
+    <ul class="nav-links">
+        <li><a href="/student">Home</a></li>
+        <li><a href="/student#about">About Us</a></li>
+        <li><a href="/student#contact">Contact Us</a></li>
+        <li><a id="profile" href="/student/profile"><i class="fa-regular fa-user"></i></a></li>
+    </ul>
+</nav>
 
-function getTermCourses(term) {
-    if (term === 1) {
-        return [...courses[1], ...courses[2]];
-    } else {
-        return [...courses[3], ...courses[4]];
+<div class="tabs">
+    <button class="tab active" onclick="showTerm(1, this)">First term</button>
+    <button class="tab" onclick="showTerm(2, this)">Second term</button>
+</div>
+
+<div id="table-container"></div>
+
+<!-- Save Button -->
+<div style="text-align:center; margin-top: 20px;">
+    <button onclick="saveSelectedCourses()" style="padding: 10px 20px; font-size: 16px;">Save</button>
+</div>
+
+<script>
+let allCourses = [];
+
+async function fetchCourses() {
+    try {
+        const token = localStorage.getItem('token'); // JWT token should be stored in localStorage
+        const response = await fetch("http://localhost:3000/api/student/available-courses", {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            allCourses = data.availableCourses.map(course => ({
+                ...course,
+                registered: false
+            }));
+            renderTableForTerm(1);
+        } else {
+            document.getElementById("table-container").innerHTML = "<p style='text-align:center;margin:30px;color:#888'>No available courses</p>";
+        }
+    } catch (error) {
+        console.error("Error loading courses:", error);
+        document.getElementById("table-container").innerHTML = "<p style='text-align:center;margin:30px;color:#888'>Error loading courses</p>";
     }
 }
 
 function renderTableForTerm(term) {
     const tableContainer = document.getElementById('table-container');
-    const data = getTermCourses(term);
+    const data = allCourses;
+
     if (!data || data.length === 0) {
         tableContainer.innerHTML = "<p style='text-align:center;margin:30px;color:#888'>No Courses</p>";
         return;
     }
+
     let html = `<table>
         <thead>
             <tr>
@@ -78,13 +82,13 @@ function renderTableForTerm(term) {
     data.forEach((course, idx) => {
         html += `<tr>
             <td>${idx + 1}</td>
-            <td>${course.name}</td>
-            <td>${course.code}</td>
-            <td>${course.hours}</td>
-            <td>${course.lecturer}</td>
-            <td>${course.seats}</td>
+            <td>${course.CourseName}</td>
+            <td>${course.CourseCode}</td>
+            <td>${course.CourseHours}</td>
+            <td>${course.ProfessorName}</td>
+            <td>${course.MaxEnrollment - course.CurrentEnrollment}</td>
             <td>
-                <button class="action-btn ${course.registered ? 'remove' : 'add'}" onclick="toggleRegisterTerm(${term}, ${idx}, this)">
+                <button class="action-btn ${course.registered ? 'remove' : 'add'}" onclick="toggleRegister(${idx}, this)">
                     ${course.registered ? '✖' : '+'}
                 </button>
             </td>
@@ -94,23 +98,55 @@ function renderTableForTerm(term) {
     tableContainer.innerHTML = html;
 }
 
+function toggleRegister(index, btn) {
+    const course = allCourses[index];
+    course.registered = !course.registered;
+    btn.innerHTML = course.registered ? '✖' : '+';
+    btn.className = 'action-btn ' + (course.registered ? 'remove' : 'add');
+}
+
 function showTerm(term, btn) {
     document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
     btn.classList.add('active');
     renderTableForTerm(term);
 }
 
-function toggleRegisterTerm(term, idx, btn) {
-    const data = getTermCourses(term);
-    const course = data[idx];
-    course.registered = !course.registered;
-    btn.innerHTML = course.registered ? '✖' : '+';
-    btn.className = 'action-btn ' + (course.registered ? 'remove' : 'add');
-}
+async function saveSelectedCourses() {
+        const selectedCourses = allCourses
+            .filter(c => c.registered)
+            .map(c => c.CourseName); // Send course names instead of IDs
 
-window.onload = function() {
-    renderTableForTerm(1);
-};
-    </script>
+        if (selectedCourses.length === 0) {
+            alert("Please select at least one course to save.");
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch("http://localhost:3000/api/student/register-courses", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({ courseNames: selectedCourses }) // Sending course names
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                alert(`Courses registered successfully. GPA: ${data.gpa}, Tuition Status: ${data.tuitionStatus}`);
+                console.log("Results:", data.results);
+                // Refresh the page after saving courses
+                location.reload();
+            } else {
+                alert("Failed to register courses: " + data.message);
+            }
+        } catch (error) {
+            console.error("Error saving courses:", error);
+            alert("An error occurred while saving.");
+        }
+    }
+window.onload = fetchCourses;
+</script>
 </body>
 </html>
