@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-module.exports = function authenticateJWT(req, res, next) {
+const authenticateJWT= (req, res, next) =>{
   const authHeader = req.headers['authorization'];
 
   if (!authHeader) {
@@ -42,4 +42,31 @@ const authenticateJWTteacher =(req, res, next) =>{
     res.sendStatus(401); // Unauthorized if no token is present
   }
 }
-module.exports = authenticateJWTteacher;
+
+const authenticateJWTadmin = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (authHeader) {
+    const token = authHeader.split(" ")[1];
+
+    jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
+      if (err) return res.sendStatus(403);
+
+      if (decoded.userType !== "admin") {
+        return res.status(403).json({ message: "Access denied: Not an admin." });
+      }
+
+      req.adminId = decoded.adminId;
+      req.userType = decoded.userType;
+      next();
+    });
+  } else {
+    res.sendStatus(401);
+  }
+};
+
+module.exports = {
+  authenticateJWT,
+  authenticateJWTadmin,
+  authenticateJWTteacher,
+};

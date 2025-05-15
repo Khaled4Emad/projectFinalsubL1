@@ -1,7 +1,10 @@
 const express = require("express");
 const sql = require("mssql/msnodesqlv8");
-const authenticateJWT = require("./middleware/authenticateStudent");
-const authenticateJWTteacher = require("./middleware/authenticateStudent")
+const {
+  authenticateJWT,
+  authenticateJWTteacher,
+  authenticateJWTadmin
+}= require("./middleware/authenticateStudent");
 const jwt = require('jsonwebtoken');
 const path = require("path");
 require("dotenv").config();
@@ -801,7 +804,118 @@ app.get("/api/professor/profile", authenticateJWTteacher, async (req, res) => {
 });
 
 //! Admin
+app.post("/api/admin/add-student", authenticateJWTadmin, async (req, res) => {
+  const {
+    AcademicID,
+    AcademicEmail,
+    Password,
+    GPA,
+    Name,
+    AcademicYear,
+    TuitionFees,
+    TuitionFeesStatus
+  } = req.body;
 
+  if (
+    !AcademicID ||
+    !AcademicEmail ||
+    !Password ||
+    GPA == null ||
+    !Name ||
+    !AcademicYear ||
+    TuitionFees == null ||
+    !TuitionFeesStatus
+  ) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
+  if (!["Paid", "Unpaid"].includes(TuitionFeesStatus)) {
+    return res.status(400).json({ message: "TuitionFeesStatus must be 'Paid' or 'Unpaid'" });
+  }
+
+  if (AcademicYear < 1 || AcademicYear > 5) {
+    return res.status(400).json({ message: "AcademicYear must be between 1 and 5" });
+  }
+
+  if (GPA < 0 || GPA > 4) {
+    return res.status(400).json({ message: "GPA must be between 0 and 4" });
+  }
+
+  try {
+    const pool = await poolPromise;
+
+    const checkResult = await pool
+      .request()
+      .input("AcademicID", sql.Int, AcademicID)
+      .query(`
+        SELECT AcademicID FROM ServerA.StudentsDB.dbo.Students
+        WHERE AcademicID = @AcademicID
+      `);
+
+    if (checkResult.recordset.length > 0) {
+      return res.status(409).json({ message: "Student with this ID already exists" });
+    }
+
+    await pool
+      .request()
+      .input("AcademicID", sql.Int, AcademicID)
+      .input("AcademicEmail", sql.NVarChar, AcademicEmail)
+      .input("Password", sql.NVarChar, Password)
+      .input("GPA", sql.Decimal(3, 2), GPA)
+      .input("Name", sql.NVarChar, Name)
+      .input("AcademicYear", sql.Int, AcademicYear)
+      .input("TuitionFees", sql.Decimal(10, 2), TuitionFees)
+      .input("TuitionFeesStatus", sql.NVarChar, TuitionFeesStatus)
+      .query(`
+        INSERT INTO ServerA.StudentsDB.dbo.Students 
+        (AcademicID, AcademicEmail, Password, GPA, Name, AcademicYear, TuitionFees, TuitionFeesStatus)
+        VALUES 
+        (@AcademicID, @AcademicEmail, @Password, @GPA, @Name, @AcademicYear, @TuitionFees, @TuitionFeesStatus)
+      `);
+
+    res.status(201).json({ message: "Student added successfully" });
+
+  } catch (err) {
+    console.error("Error adding student:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+app.post("/api/admin/add-professor", authenticateJWTadmin, async (req, res) => {
+  const {
+    ProfessorID,
+    Name,
+    Email,
+    Password
+  } = req.body;
+
+  try {
+    const pool = await poolPromise;
+    const request = pool.request();
+
+    request.input("ProfessorID", sql.Int, ProfessorID);
+    request.input("Name", sql.NVarChar(100), Name);
+    request.input("Email", sql.NVarChar(100), Email);
+    request.input("Password", sql.NVarChar(100), Password);
+
+    const query = `
+      INSERT INTO ServerC.ProfessorsDB.dbo.Professors (ProfessorID, Name, Email, Password)
+      VALUES (@ProfessorID, @Name, @Email, @Password)
+    `;
+
+    await request.query(query);
+
+    res.status(201).json({ success: true, message: "Professor added successfully." });
+  } catch (err) {
+    console.error("Error adding professor:", err);
+    if (err.originalError?.info?.number === 2627) {
+      res.status(400).json({ success: false, message: "Duplicate ProfessorID or Email." });
+    } else {
+      res.status(500).json({ success: false, message: "Server error." });
+    }
+  }
+});
 
 // Start the server
 app.listen(port, () => {
