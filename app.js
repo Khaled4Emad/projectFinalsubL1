@@ -265,82 +265,6 @@ app.get("/api/student/course-load", async (req, res) => {
 });
 
 
-// app.post("/login", async (req, res) => {
-//   const { email, password, userType } = req.body;
-
-//   let config, table, emailColumn, passwordColumn, pool, payload;
-
-//   if (userType === "student") {
-//     config = studentsConfig;
-//     table = "Students";
-//     emailColumn = "AcademicEmail";
-//     passwordColumn = "Password";
-//   } else if (userType === "doctor") {
-//     config = professorsConfig;
-//     table = "Professors";
-//     emailColumn = "Email";
-//     passwordColumn = "Password";
-//   }
-
-//   try {
-     
-//     if (userType === "student") {
-//       pool = await poolPromise;
-//     } else if (userType === "doctor") {
-//       pool = await doctorsPoolPromise;
-//     }
-//     const request = pool.request();
-
-//     // Define the SQL query with parameters
-//     const query = `
-//       SELECT * FROM dbo.${table}
-//       WHERE ${emailColumn} = @Email AND ${passwordColumn} = @Password
-//     `;
-
-//     request.input("Email", sql.NVarChar, email);
-//     request.input("Password", sql.NVarChar, password);
-
-//     const result = await request.query(query);
-
-//     if (result.recordset.length > 0) {
-//       const user = result.recordset[0];
-
-//       // Create a payload to include in the JWT (e.g., user ID and user type)
-//       if (userType === "student"){
-//         payload = {
-//           studentId: user.AcademicID,
-//           userType: userType
-//         };
-//       }else if (userType === "doctor") {
-//         payload = {
-//           professorId: user.ProfessorID,
-//           userType: userType
-//         };
-//         console.log("payload"+payload)
-//       }
-
-//       // Sign the JWT with the payload and secret key
-//       const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, { expiresIn: '1h' }); // Token expires in 1 hour
-
-//       // Send the JWT as a response
-//       res.json({
-//         success: true,
-//         token: token, // Send the token back to the client
-//         user: {
-//           id: user.AcademicID,
-//           email: user[emailColumn],
-//           name: user.Name
-//         }
-//       });
-//     } else {
-//       res.json({ success: false, message: "Invalid credentials." });
-//     }
-//   } catch (err) {
-//     console.error("Login error:", err.message);
-//     res.status(500).json({ success: false, message: "Server error" });
-//   }
-// });
-
 app.post("/login", async (req, res) => {
   const { email, password, userType } = req.body;
 
@@ -881,39 +805,90 @@ app.post("/api/admin/add-student", authenticateJWTadmin, async (req, res) => {
   }
 });
 
-
 app.post("/api/admin/add-professor", authenticateJWTadmin, async (req, res) => {
   const {
     ProfessorID,
     Name,
     Email,
-    Password
+    Password,
+    courseNames = []
   } = req.body;
 
   try {
     const pool = await poolPromise;
-    const request = pool.request();
 
-    request.input("ProfessorID", sql.Int, ProfessorID);
-    request.input("Name", sql.NVarChar(100), Name);
-    request.input("Email", sql.NVarChar(100), Email);
-    request.input("Password", sql.NVarChar(100), Password);
+    for (const courseName of courseNames) {
+      const courseCheck = await pool.request()
+        .input("CourseName", sql.NVarChar(100), courseName)
+        .query(`
+          SELECT CourseID, ProfessorID
+          FROM ServerB.CoursesDB.dbo.Courses
+          WHERE CourseName = @CourseName
+        `);
 
-    const query = `
-      INSERT INTO ServerC.ProfessorsDB.dbo.Professors (ProfessorID, Name, Email, Password)
-      VALUES (@ProfessorID, @Name, @Email, @Password)
-    `;
+      if (courseCheck.recordset.length === 0) {
+        return res.status(404).json({ success: false, message: `Course "${courseName}" not found.` });
+      }
 
-    await request.query(query);
+      const course = courseCheck.recordset[0];
+      if (course.ProfessorID) {
+        return res.status(409).json({ success: false, message: `Course "${courseName}" is already assigned to another professor.` });
+      }
+    }
 
-    res.status(201).json({ success: true, message: "Professor added successfully." });
+    await pool.request()
+      .input("ProfessorID", sql.Int, ProfessorID)
+      .input("Name", sql.NVarChar(100), Name)
+      .input("Email", sql.NVarChar(100), Email)
+      .input("Password", sql.NVarChar(100), Password)
+      .query(`
+        INSERT INTO ServerC.ProfessorsDB.dbo.Professors (ProfessorID, Name, Email, Password)
+        VALUES (@ProfessorID, @Name, @Email, @Password)
+      `);
+
+    for (const courseName of courseNames) {
+      await pool.request()
+        .input("CourseName", sql.NVarChar(100), courseName)
+        .input("ProfessorID", sql.Int, ProfessorID)
+        .query(`
+          UPDATE ServerB.CoursesDB.dbo.Courses
+          SET ProfessorID = @ProfessorID
+          WHERE CourseName = @CourseName
+        `);
+    }
+
+    res.status(201).json({ success: true, message: "Professor added and courses assigned successfully." });
+
   } catch (err) {
-    console.error("Error adding professor:", err);
+    console.error("Error adding professor and assigning courses:", err);
     if (err.originalError?.info?.number === 2627) {
       res.status(400).json({ success: false, message: "Duplicate ProfessorID or Email." });
     } else {
       res.status(500).json({ success: false, message: "Server error." });
     }
+  }
+});
+
+//! courses
+
+app.get("/api/admin/unassigned-courses", authenticateJWTadmin, async (req, res) => {
+  try {
+    const pool = await poolPromise;
+
+    const result = await pool.request()
+      .query(`
+        SELECT CourseID, CourseName
+        FROM ServerB.CoursesDB.dbo.Courses
+        WHERE ProfessorID IS NULL
+      `);
+
+    res.status(200).json({
+      success: true,
+      courses: result.recordset
+    });
+  } catch (err) {
+    console.error("Error fetching unassigned courses:", err);
+    res.status(500).json({ success: false, message: "Server error." });
   }
 });
 

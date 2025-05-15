@@ -37,10 +37,13 @@
         <form id="add-student-form" method="post" enctype="multipart/form-data" style="flex-direction: column; align-items: center;">
             <div class="inputs" style="justify-content: center; display: flex; flex-direction: column;">
                 <input name="FullName" type="text" placeholder="FullName" required>
-                <input name="ProfessorID" type="number" placeholder="Professor ID" required>
+                <input name="ProfessorID" type="number" placeholder="Professor ID" min="0" required>
                 <input name="Email" type="email" placeholder="Email" required>
                 <input name="password" type="password" placeholder="Password" required>
-                <input name="TaughtCourses" type="text" placeholder="Taught Courses" required>
+                  <select name="TaughtCourses" id="TaughtCourses" multiple required>
+                    <option value="" disabled selected>Select a course</option>
+                  </select>
+
             </div>
             <div class="buttons">
                 <button type="submit" name="submit">Add</button>
@@ -48,8 +51,11 @@
             </div>
 
         </form>
-            <div id="add-student-message"></div>
+            <!-- ✅ Message goes here -->
+        <div id="add-student-message" style="margin-top: 1rem; color: green;"></div>
         </div>
     </div>
+
+    <script src="../JS/addProfessor.js"></script>
 </body>
 </html>

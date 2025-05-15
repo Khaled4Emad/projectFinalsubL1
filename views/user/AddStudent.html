@@ -37,22 +37,25 @@
         <div class="changed-section" id="add-student-section">
         <form id="add-student-form" method="post" enctype="multipart/form-data">
             <input name="name" type="text" placeholder="Student Name" required>
-            <input name="ssn" type="text" placeholder="SSN" required>
-            <input name="phone" type="text" placeholder="Phone Number" required>
-            <input name="grades" type="text" placeholder="High School Grades" required>
-            <input name="academic_id" type="text" placeholder="Academic ID" required>
+            <input name="academic_id" type="number" placeholder="Academic ID" required>
+            <input name="email" type="email" placeholder="Academic Email" required>
             <input name="password" type="password" placeholder="Password" required>
-            <input name="gpa" type="text" placeholder="GPA" required>
-            <input name="credit_hours" type="text" placeholder="Credit Hours" required>
-            <input name="academic_year" type="text" placeholder="Academic Year" required>
-            <input name="picture" type="file" placeholder="Picture" accept="image/*" required>
-            <input name="tuition_fees" type="text" placeholder="Tuition Fees" required>
-            <input name="tuition_fees_status" type="text" placeholder="Tuition Fees Status" required>
+            <input name="gpa" step="0.01" max="4" min="0" type="number" placeholder="GPA" required>
+            <input name="academic_year" type="number" placeholder="Academic Year" required step="1" max="4" min="1">
+            <input name="tuition_fees" type="number" placeholder="Tuition Fees" required min="0">
+            <select name="tuition_fees_status" required>
+              <option value="" disabled selected>Select Tuition Fees Status</option>
+              <option value="Paid">Paid</option>
+              <option value="Unpaid">Unpaid</option>
+            </select>
             <button type="submit" name="submit">Add</button>
             <button type="reset">Reset</button>
         </form>
             <div id="add-student-message"></div>
         </div>
     </div>
+
+
+    <script src="../JS/addStudent.js"></script>
 </body>
 </html>
