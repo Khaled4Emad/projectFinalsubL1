@@ -1,6 +1,7 @@
 const express = require("express");
 const sql = require("mssql/msnodesqlv8");
 const authenticateJWT = require("./middleware/authenticateStudent");
+const authenticateJWTteacher = require("./middleware/authenticateStudent")
 const jwt = require('jsonwebtoken');
 const path = require("path");
 require("dotenv").config();
@@ -98,6 +99,13 @@ app.get("/student", (req, res) => {
 
 app.get("/doctor", (req, res) => {
   res.sendFile(path.join(__dirname, "views", "user", "mainForDoctor.html"));
+});
+
+
+app.get("/doctor/profile", (req, res) => {
+  res.sendFile(
+    path.join(__dirname, "views", "user", "doctorProfile.html")
+  );
 });
 
 app.get("/student/profile", (req, res) => {
@@ -599,7 +607,51 @@ app.post("/api/student/unregister-course", authenticateJWT, async (req, res) => 
   }
 });
 
+//! professors 
 
+app.get("/api/professor/profile", authenticateJWTteacher, async (req, res) => {
+  try {
+    const professorId = req.professorId;
+    console.log("professorId: " + professorId);
+
+    const pool = await poolPromise;
+
+    const profResult = await pool
+      .request()
+      .input("professorId", sql.Int, professorId)
+      .query(`
+        SELECT ProfessorID, Name, Email, Password
+        FROM ServerC.ProfessorsDB.dbo.Professors
+        WHERE ProfessorID = @professorId
+      `);
+
+    if (profResult.recordset.length === 0) {
+      return res.status(404).json({ message: "Professor not found" });
+    }
+
+    const professor = profResult.recordset[0];
+
+    const coursesResult = await pool
+      .request()
+      .input("professorId", sql.Int, professorId)
+      .query(`
+        SELECT CourseName
+        FROM ServerB.CoursesDB.dbo.Courses
+        WHERE ProfessorID = @professorId
+      `);
+
+    const courseNames = coursesResult.recordset.map(course => course.CourseName);
+
+    res.status(200).json({
+      professor,
+      courseNames
+    });
+
+  } catch (err) {
+    console.error("Error fetching professor profile or courses:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
 // Start the server
 app.listen(port, () => {

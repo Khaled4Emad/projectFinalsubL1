@@ -1,32 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
-    <link rel="icon" type="image/x-icon" href="../images/profile image.png">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" />
+    <link rel="icon" type="image/x-icon" href="../images/profile image.png" />
     <title>Profile</title>
-    <link rel="stylesheet" href="../CSS/ProfilePageStudent.css">
+    <link rel="stylesheet" href="../CSS/ProfilePageStudent.css" />
+
+    <style>
+  /* Add this inside your <head> or CSS file */
+
+  #coursesList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  #coursesList li {
+    background-color: #007bff; /* Green */
+    color: white;
+    padding: 6px 15px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    white-space: nowrap;
+    user-select: none;
+    transition: background-color 0.3s ease;
+    cursor: default;
+  }
+
+  #coursesList li:hover {
+    background-color: #2a5b8f;
+  }
+</style>
+
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar">
+<nav class="navbar">
         <div class="logo"><img src="../images/menoufia-universitylogo.jpg" alt=""></div>
         <ul class="nav-links">
-            <li><a href="../pages/MainPageStudent.html#Main">Home</a></li>
-            <li><a href="../pages/MainPageStudent.html#about">About Us</a></li>
-            <li><a href="../pages/MainPageStudent.html#contact">Contact Us</a></li>
-            <li><a id="profile" href="../pages/doctorProfile.html"><i class="fa-regular fa-user"></i></a></li>
+            <li><a href="/doctor">Home</a></li>
+            <li><a href="/doctor#about">About Us</a></li>
+            <li><a href="/doctor#contact">Contact Us</a></li>
+            <li><a id="profile" href="/doctor/profile"><i class="fa-regular fa-user"></i></a></li>
         </ul>
     </nav>
 
     <div class="container">
         <div class="profile-header">
-            <div class="profile-picture">
-                <img src='../images/my profile picture.jpg' alt='Profile Picture'>
-            </div>
             <div class="profile-title">
-                <h1>John Doe</h1>
+                <h1 id="profileName">Loading...</h1>
             </div>
         </div>
 
@@ -36,11 +65,11 @@
                 <div class="info-grid">
                     <div class="info-item">
                         <span class="label">Name:</span>
-                        <span class="value">John Doe</span>
+                        <span id="profName" class="value"></span>
                     </div>
                     <div class="info-item">
                         <span class="label">Academic ID:</span>
-                        <span class="value">202300123</span>
+                        <span id="profID" class="value"></span>
                     </div>
                 </div>
             </div>
@@ -50,21 +79,79 @@
                 <div class="info-grid">
                     <div class="info-item">
                         <span class="label">Email:</span>
-                        <span class="value">john.doe@student.menofia.edu.eg</span>
+                        <span id="profEmail" class="value"></span>
                     </div>
                     <div class="info-item">
                         <span class="label">Password:</span>
-                        <span class="value">********</span>
+                        <span class="value" id="profPass">********</span>
                     </div>
                     <div class="info-item">
                         <span class="label">Taught Courses:</span>
-                        <span class="value">Big data</span>
+                        <ul id="coursesList">
+                            <li>Loading courses...</li>
+                        </ul>
                     </div>
-
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        async function loadProfessorProfile() {
+            try {
+                // Adjust this if your auth token is stored differently
+                const token = localStorage.getItem('token'); 
+
+                const response = await fetch('/api/professor/profile', {
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const prof = data.professor;
+                const courses = data.courseNames;
+
+                // Set profile header name
+                document.getElementById('profileName').textContent = prof.Name || "No Name";
+
+                // Fill personal info
+                document.getElementById('profName').textContent = prof.Name || "No Name";
+                document.getElementById('profID').textContent = prof.ProfessorID || "N/A";
+
+                // Fill academic info
+                document.getElementById('profEmail').textContent = prof.Email || "No Email";
+
+                document.getElementById('profPass').textContent = prof.Password || "######";
+                // Fill courses list
+                const coursesList = document.getElementById('coursesList');
+                coursesList.innerHTML = ''; // clear loading text
+                if (courses.length > 0) {
+                    courses.forEach(courseName => {
+                        const li = document.createElement('li');
+                        li.textContent = courseName;
+                        coursesList.appendChild(li);
+                    });
+                } else {
+                    coursesList.innerHTML = '<li>No courses found</li>';
+                }
+            } catch (error) {
+                console.error("Failed to load profile data:", error);
+                alert("Failed to load profile data.");
+                // fallback UI
+                document.getElementById('profileName').textContent = "Error loading profile";
+                document.getElementById('profName').textContent = "-";
+                document.getElementById('profID').textContent = "-";
+                document.getElementById('profEmail').textContent = "-";
+                document.getElementById('coursesList').innerHTML = '<li>Error loading courses</li>';
+            }
+        }
+
+        window.onload = loadProfessorProfile;
+    </script>
 </body>
 </html>
-
