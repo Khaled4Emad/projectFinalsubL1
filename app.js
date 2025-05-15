@@ -81,6 +81,39 @@ process.on("SIGINT", async () => {
   process.exit(0);
 });
 
+
+const adminsConfig = {
+  connectionString: `Driver={${process.env.DB_DRIVER}};Server=${process.env.DB_SERVER};Database=AdminDB;Trusted_Connection=Yes;`,
+  options: {
+    trustServerCertificate: true,
+    connectionTimeout: 30000,
+    requestTimeout: 60000,
+    pool: {
+      max: 10,
+      min: 0,
+      idleTimeoutMillis: 30000,
+    },
+  },
+};
+
+const adminsPoolPromise = new sql.ConnectionPool(adminsConfig)
+  .connect()
+  .then((pool) => {
+    console.log("Connected to Admins Database");
+    return pool;
+  })
+  .catch((err) => {
+    console.error("Database Connection Failed for Admins:", err);
+    process.exit(1);
+  });
+
+process.on("SIGINT", async () => {
+  const pool = await adminsPoolPromise;
+  await pool.close();
+  process.exit(0);
+});
+
+
 // Serve the index.html file at the root
 app.get("/", (req, res) => {
   const filePath = path.join(__dirname, "views", "index.html");
@@ -99,6 +132,10 @@ app.get("/student", (req, res) => {
 
 app.get("/doctor", (req, res) => {
   res.sendFile(path.join(__dirname, "views", "user", "mainForDoctor.html"));
+});
+
+app.get("/admin", (req, res) => {
+  res.sendFile(path.join(__dirname, "views", "user", "main.html"));
 });
 
 
@@ -121,6 +158,36 @@ app.get("/student/Payment", (req, res) => {
 app.get("/student/RegistrationOfMaterials", (req, res) => {
   res.sendFile(
     path.join(__dirname, "views", "user", "RegistrationOfMaterials.html")
+  );
+});
+
+app.get("/admin/AddStudent", (req, res) => {
+  res.sendFile(
+    path.join(__dirname, "views", "user", "AddStudent.html")
+  );
+});
+
+app.get("/admin/Adddoctor", (req, res) => {
+  res.sendFile(
+    path.join(__dirname, "views", "user", "Adddoctor.html")
+  );
+});
+
+app.get("/admin/SearchResult", (req, res) => {
+  res.sendFile(
+    path.join(__dirname, "views", "user", "SearchResult.html")
+  );
+});
+
+app.get("/admin/MoreDetails", (req, res) => {
+  res.sendFile(
+    path.join(__dirname, "views", "user", "MoreDetails.html")
+  );
+});
+
+app.get("/admin/EditStudent", (req, res) => {
+  res.sendFile(
+    path.join(__dirname, "views", "user", "EditStudent.html")
   );
 });
 
@@ -195,6 +262,82 @@ app.get("/api/student/course-load", async (req, res) => {
 });
 
 
+// app.post("/login", async (req, res) => {
+//   const { email, password, userType } = req.body;
+
+//   let config, table, emailColumn, passwordColumn, pool, payload;
+
+//   if (userType === "student") {
+//     config = studentsConfig;
+//     table = "Students";
+//     emailColumn = "AcademicEmail";
+//     passwordColumn = "Password";
+//   } else if (userType === "doctor") {
+//     config = professorsConfig;
+//     table = "Professors";
+//     emailColumn = "Email";
+//     passwordColumn = "Password";
+//   }
+
+//   try {
+     
+//     if (userType === "student") {
+//       pool = await poolPromise;
+//     } else if (userType === "doctor") {
+//       pool = await doctorsPoolPromise;
+//     }
+//     const request = pool.request();
+
+//     // Define the SQL query with parameters
+//     const query = `
+//       SELECT * FROM dbo.${table}
+//       WHERE ${emailColumn} = @Email AND ${passwordColumn} = @Password
+//     `;
+
+//     request.input("Email", sql.NVarChar, email);
+//     request.input("Password", sql.NVarChar, password);
+
+//     const result = await request.query(query);
+
+//     if (result.recordset.length > 0) {
+//       const user = result.recordset[0];
+
+//       // Create a payload to include in the JWT (e.g., user ID and user type)
+//       if (userType === "student"){
+//         payload = {
+//           studentId: user.AcademicID,
+//           userType: userType
+//         };
+//       }else if (userType === "doctor") {
+//         payload = {
+//           professorId: user.ProfessorID,
+//           userType: userType
+//         };
+//         console.log("payload"+payload)
+//       }
+
+//       // Sign the JWT with the payload and secret key
+//       const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, { expiresIn: '1h' }); // Token expires in 1 hour
+
+//       // Send the JWT as a response
+//       res.json({
+//         success: true,
+//         token: token, // Send the token back to the client
+//         user: {
+//           id: user.AcademicID,
+//           email: user[emailColumn],
+//           name: user.Name
+//         }
+//       });
+//     } else {
+//       res.json({ success: false, message: "Invalid credentials." });
+//     }
+//   } catch (err) {
+//     console.error("Login error:", err.message);
+//     res.status(500).json({ success: false, message: "Server error" });
+//   }
+// });
+
 app.post("/login", async (req, res) => {
   const { email, password, userType } = req.body;
 
@@ -205,23 +348,26 @@ app.post("/login", async (req, res) => {
     table = "Students";
     emailColumn = "AcademicEmail";
     passwordColumn = "Password";
+    pool = await poolPromise;
   } else if (userType === "doctor") {
     config = professorsConfig;
     table = "Professors";
     emailColumn = "Email";
     passwordColumn = "Password";
+    pool = await doctorsPoolPromise;
+  } else if (userType === "admin") {
+    config = adminsConfig;
+    table = "Admins";
+    emailColumn = "Email";
+    passwordColumn = "Password";
+    pool = await adminsPoolPromise;
+  } else {
+    return res.status(400).json({ success: false, message: "Invalid user type." });
   }
 
   try {
-     
-    if (userType === "student") {
-      pool = await poolPromise;
-    } else if (userType === "doctor") {
-      pool = await doctorsPoolPromise;
-    }
     const request = pool.request();
 
-    // Define the SQL query with parameters
     const query = `
       SELECT * FROM dbo.${table}
       WHERE ${emailColumn} = @Email AND ${passwordColumn} = @Password
@@ -235,29 +381,30 @@ app.post("/login", async (req, res) => {
     if (result.recordset.length > 0) {
       const user = result.recordset[0];
 
-      // Create a payload to include in the JWT (e.g., user ID and user type)
-      if (userType === "student"){
+      if (userType === "student") {
         payload = {
           studentId: user.AcademicID,
           userType: userType
         };
-      }else if (userType === "doctor") {
+      } else if (userType === "doctor") {
         payload = {
           professorId: user.ProfessorID,
           userType: userType
         };
-        console.log("payload"+payload)
+      } else if (userType === "admin") {
+        payload = {
+          adminId: user.AdminID,
+          userType: userType
+        };
       }
 
-      // Sign the JWT with the payload and secret key
-      const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, { expiresIn: '1h' }); // Token expires in 1 hour
+      const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
 
-      // Send the JWT as a response
       res.json({
         success: true,
-        token: token, // Send the token back to the client
+        token: token,
         user: {
-          id: user.AcademicID,
+          id: user.AcademicID || user.ProfessorID || user.AdminID,
           email: user[emailColumn],
           name: user.Name
         }
@@ -652,6 +799,9 @@ app.get("/api/professor/profile", authenticateJWTteacher, async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
+
+//! Admin
+
 
 // Start the server
 app.listen(port, () => {

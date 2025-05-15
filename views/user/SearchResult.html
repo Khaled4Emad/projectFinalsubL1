@@ -10,34 +10,29 @@
 </head>
 <body>
     <div class="sidebar">
-        <h2>Admin</h2>
-        <hr />
-        <ul>
-            <li id="home-link">
-                <a href="../Pages/main.html"><i class="fa-solid fa-house"></i>Home</a>
-            </li>
-            <li id="add-student-link">
-                <a href="../pages/AddStudent.html">
-                    <i class="fa-solid fa-plus"></i>Add Student
-                </a>
-            </li>
-            <li id="add-doctor-link">
-                <a href="../pages/Adddoctor.html">
-                    <i class="fa-solid fa-plus"></i>Add Doctor
-                </a>
-            </li>
-        </ul>
+                <h2>Admin</h2>
+      <hr />
+      <ul>
+        <li id="home-link">
+          <a href="/admin"><i class="fa-solid fa-house"></i> Home</a>
+        </li>
+        <li id="add-student-link">
+          <a href="/admin/addstudent"><i class="fa-solid fa-plus"></i> Add Student</a>
+        </li>
+        <li id="add-doctor-link">
+          <a href="/admin/adddoctor"><i class="fa-solid fa-plus"></i> Add Doctor</a>
+        </li>
+      </ul>
     </div>
     <div class="main-content">
         <div class="navbar">
             <div class="logo"><img src="../images/fcilogo.jpg"></div>
             <div class="search-container">
                 <!-- The form now submits the search query using GET -->
-                <form action="SearchResult.php" method="GET">
+                <form action="/admin/SearchResult" method="GET">
                     <input type="text" id="search-field" name="search" placeholder="Search by Academic ID">
                     <a href="../Pages/SearchResult.html"><button id="search-button">Search</button></a>
                 </form>
-                <a id="profile" href="../pages/ProfilePageStudent.html"><i class="fa-regular fa-user"></i></a>
 
             </div>
         </div>
@@ -61,13 +56,13 @@
                                 <td>sssssssss</td>
                                 <td>ssssssssssssss</td>
                                 <td class="Action">
-                                    <a href="../Pages/MoreDetails.html">
+                                    <a href="/admin/MoreDetails" style="text-decoration: none;">
                                         <i id="moredetailsicon" class="fa-solid fa-circle-info"></i>
                                     </a>
-                                    <a href="../Pages/EditStudent.html">
+                                    <a href="/admin/EditStudent" style="text-decoration: none;">
                                         <i id="editstudenticon" class="fa-solid fa-pen"></i>
                                     </a>
-                                    <a href="SearchResult.html" onclick="return confirm('Are you sure you want to delete this student?');">
+                                    <a href="/admin/SearchResult" onclick="return confirm('Are you sure you want to delete this student?');" style="text-decoration: none;">
                                         <i class="fa-solid fa-trash"></i>
                                     </a>
                                 </td>
