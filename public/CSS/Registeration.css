@@ -126,3 +126,35 @@ tr:nth-child(even) {
 .action-btn:active {
     transform: scale(1.1);
 }
+
+.registerOnCourses {
+    padding: 1.2rem;
+    margin: 1rem 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.registerOnCourses button {
+    padding: 0.8rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    background-color: #007bff; /* Bootstrap blue */
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 123, 255, 0.3);
+}
+
+.registerOnCourses button:hover {
+    background-color: #0056b3;
+    transform: scale(1.03);
+}
+
+.registerOnCourses button:active {
+    background-color: #00408d;
+    transform: scale(0.98);
+}
+

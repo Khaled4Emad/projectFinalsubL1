@@ -2,6 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registration of Materials</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
     <link rel="stylesheet" href="../CSS/Registeration.css">
@@ -25,128 +26,11 @@
 <div id="table-container"></div>
 
 <!-- Save Button -->
-<div style="text-align:center; margin-top: 20px;">
-    <button onclick="saveSelectedCourses()" style="padding: 10px 20px; font-size: 16px;">Save</button>
+<div class="registerOnCourses">
+    <button id="registerButton" onclick="saveSelectedCourses()">Save</button>
 </div>
 
-<script>
-let allCourses = [];
 
-async function fetchCourses() {
-    try {
-        const token = localStorage.getItem('token'); // JWT token should be stored in localStorage
-        const response = await fetch("http://localhost:3000/api/student/available-courses", {
-            headers: {
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-        const data = await response.json();
-        if (data.success) {
-            allCourses = data.availableCourses.map(course => ({
-                ...course,
-                registered: false
-            }));
-            renderTableForTerm(1);
-        } else {
-            document.getElementById("table-container").innerHTML = "<p style='text-align:center;margin:30px;color:#888'>No available courses</p>";
-        }
-    } catch (error) {
-        console.error("Error loading courses:", error);
-        document.getElementById("table-container").innerHTML = "<p style='text-align:center;margin:30px;color:#888'>Error loading courses</p>";
-    }
-}
-
-function renderTableForTerm(term) {
-    const tableContainer = document.getElementById('table-container');
-    const data = allCourses;
-
-    if (!data || data.length === 0) {
-        tableContainer.innerHTML = "<p style='text-align:center;margin:30px;color:#888'>No Courses</p>";
-        return;
-    }
-
-    let html = `<table>
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Course name</th>
-                <th>Course code</th>
-                <th>Course hours</th>
-                <th>Doctor</th>
-                <th>Available places</th>
-                <th>Registration</th>
-            </tr>
-        </thead>
-        <tbody>`;
-    data.forEach((course, idx) => {
-        html += `<tr>
-            <td>${idx + 1}</td>
-            <td>${course.CourseName}</td>
-            <td>${course.CourseCode}</td>
-            <td>${course.CourseHours}</td>
-            <td>${course.ProfessorName}</td>
-            <td>${course.MaxEnrollment - course.CurrentEnrollment}</td>
-            <td>
-                <button class="action-btn ${course.registered ? 'remove' : 'add'}" onclick="toggleRegister(${idx}, this)">
-                    ${course.registered ? '✖' : '+'}
-                </button>
-            </td>
-        </tr>`;
-    });
-    html += `</tbody></table>`;
-    tableContainer.innerHTML = html;
-}
-
-function toggleRegister(index, btn) {
-    const course = allCourses[index];
-    course.registered = !course.registered;
-    btn.innerHTML = course.registered ? '✖' : '+';
-    btn.className = 'action-btn ' + (course.registered ? 'remove' : 'add');
-}
-
-function showTerm(term, btn) {
-    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-    btn.classList.add('active');
-    renderTableForTerm(term);
-}
-
-async function saveSelectedCourses() {
-        const selectedCourses = allCourses
-            .filter(c => c.registered)
-            .map(c => c.CourseName); // Send course names instead of IDs
-
-        if (selectedCourses.length === 0) {
-            alert("Please select at least one course to save.");
-            return;
-        }
-
-        try {
-            const token = localStorage.getItem('token');
-            const response = await fetch("http://localhost:3000/api/student/register-courses", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify({ courseNames: selectedCourses }) // Sending course names
-            });
-
-            const data = await response.json();
-            if (data.success) {
-                alert(`Courses registered successfully. GPA: ${data.gpa}, Tuition Status: ${data.tuitionStatus}`);
-                console.log("Results:", data.results);
-                // Refresh the page after saving courses
-                location.reload();
-            } else {
-                alert("Failed to register courses: " + data.message);
-            }
-        } catch (error) {
-            console.error("Error saving courses:", error);
-            alert("An error occurred while saving.");
-        }
-    }
-window.onload = fetchCourses;
-</script>
+<script src="../JS/studentRegisteration.js"></script>
 </body>
 </html>

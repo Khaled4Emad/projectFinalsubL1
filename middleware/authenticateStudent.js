@@ -1,19 +1,26 @@
-const jwt = require("jsonwebtoken");
-const authenticateJWT =(req, res, next) =>{
-  const authHeader = req.headers.authorization;
+const jwt = require('jsonwebtoken');
 
-  if (authHeader) {
-    const token = authHeader.split(" ")[1];
+module.exports = function authenticateJWT(req, res, next) {
+  const authHeader = req.headers['authorization'];
 
-    jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
-      if (err) return res.sendStatus(403); // Forbidden if token is invalid
-      req.studentId = decoded.studentId;
-      req.userType = decoded.userType; // Optionally, you can also store userType
-      next();
-    });
-  } else {
-    res.sendStatus(401); // Unauthorized if no token is present
+  if (!authHeader) {
+    return res.status(401).json({ message: 'Authorization header missing' });
   }
-}
 
-module.exports = authenticateJWT;
+  const token = authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ message: 'Token missing' });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ message: 'Invalid token' });
+    }
+
+    // Make sure you attach the studentId (or whatever field is in the payload)
+    req.studentId = decoded.studentId;
+
+    next();
+  });
+}

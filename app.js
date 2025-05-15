@@ -1,6 +1,6 @@
 const express = require("express");
 const sql = require("mssql/msnodesqlv8");
-const authenticateJWT = require("./middleware/authenticateStudent")
+const authenticateJWT = require("./middleware/authenticateStudent");
 const jwt = require('jsonwebtoken');
 const path = require("path");
 require("dotenv").config();
@@ -263,31 +263,100 @@ app.post("/login", async (req, res) => {
   }
 });
 
+
 app.get("/api/student/profile", authenticateJWT, async (req, res) => {
   try {
-    const studentId = req.studentId; // Get studentId from decoded JWT
+    console.log("Inside profile API");
+    const studentId = req.studentId;
+    console.log("Fetching profile for studentId:", studentId);
 
     const pool = await poolPromise;
-    const result = await pool
+
+    // Fetch student info
+    const studentResult = await pool
       .request()
       .input("studentId", sql.Int, studentId)
       .query(`
         SELECT AcademicID, AcademicEmail, GPA, Name, AcademicYear,
-               TuitionFees, TuitionFeesStatus
+                TuitionFees, TuitionFeesStatus, Password
         FROM Students
         WHERE AcademicID = @studentId
       `);
 
-    if (result.recordset.length === 0) {
+          console.log("Student result count:", studentResult.recordset.length);
+
+
+    if (studentResult.recordset.length === 0) {
+      console.log("No student found for id:", studentId);
       return res.status(404).json({ message: "Student not found" });
     }
 
-    res.json(result.recordset[0]);
+    // Count number of courses student is enrolled in
+    const courseCountResult = await pool
+      .request()
+      .input("studentId", sql.Int, studentId)
+      .query(`
+        SELECT COUNT(*) AS EnrolledCourses
+        FROM StudentEnrollments
+        WHERE AcademicID = @studentId
+      `);
+
+    const student = studentResult.recordset[0];
+    student.EnrolledCourses = courseCountResult.recordset[0].EnrolledCourses;
+
+    console.log("Returning student data:", student);
+    res.status(200).json(student);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Server error" });
   }
 });
+
+//* Endpoint to change Unpaid to Paid
+
+app.put("/api/student/Payment", authenticateJWT, async (req, res) => {
+  try {
+    const studentId = req.studentId;
+
+    const pool = await poolPromise;
+
+    // First, check if the student exists and has unpaid tuition
+    const checkResult = await pool
+      .request()
+      .input("studentId", sql.Int, studentId)
+      .query(`
+        SELECT TuitionFeesStatus 
+        FROM Students 
+        WHERE AcademicID = @studentId
+      `);
+
+    if (checkResult.recordset.length === 0) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    const currentStatus = checkResult.recordset[0].TuitionFeesStatus;
+    if (currentStatus === "Paid") {
+      return res.status(400).json({ message: "Tuition fees already marked as paid" });
+    }
+
+    // Update the tuition fees status to 'Paid'
+    await pool
+      .request()
+      .input("studentId", sql.Int, studentId)
+      .query(`
+        UPDATE Students
+        SET TuitionFeesStatus = 'Paid'
+        WHERE AcademicID = @studentId
+      `);
+
+    res.status(200).json({ message: "Tuition fees status updated to Paid" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
 
 // New endpoint to get available courses for a student
 app.get("/api/student/available-courses", authenticateJWT, async (req, res) => {

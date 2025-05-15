@@ -1,107 +1,3 @@
-<!--<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
-    <link rel="icon" type="image/x-icon" href="../images/profile image.png">
-    <title>Profile</title>
-    <link rel="stylesheet" href="../CSS/ProfilePageStudent.css">
-</head>
-<body>
-    <nav class="navbar">
-        <div class="logo"><img src="../images/menoufia-universitylogo.jpg" alt=""></div>
-        <ul class="nav-links">
-            <li><a href="/student">Home</a></li>
-            <li><a href="/student#about">About Us</a></li>
-            <li><a href="/student#contact">Contact Us</a></li>
-            <li><a id="profile" href="/student/profile"><i class="fa-regular fa-user"></i></a></li>
-        </ul>
-    </nav>
-
-    <div class="container">
-        <div class="profile-header">
-            <div class="profile-picture">
-                <img src='../images/my profile picture.jpg' alt='Profile Picture'>
-            </div>
-            <div class="profile-title">
-                <h1>John Doe</h1>
-            </div>
-        </div>
-
-        <div class="profile-content">
-            <div class="info-section">
-                <h2>Personal Information</h2>
-                <div class="info-grid">
-                    <div class="info-item">
-                        <span class="label">Name:</span>
-                        <span class="value">John Doe</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">SSN:</span>
-                        <span class="value">123-45-6789</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">Phone Number:</span>
-                        <span class="value">+20 123 456 7890</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">Academic ID:</span>
-                        <span class="value">202300123</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="info-section">
-                <h2>Academic Information</h2>
-                <div class="info-grid">
-                    <div class="info-item">
-                        <span class="label">Academic Year:</span>
-                        <span class="value">2023-2024</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">High School Grades:</span>
-                        <span class="value">95%</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">Email:</span>
-                        <span class="value">john.doe@student.menofia.edu.eg</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">Password:</span>
-                        <span class="value">********</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">GPA:</span>
-                        <span class="value">3.8</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">Credit Hours:</span>
-                        <span class="value">120</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="info-section">
-                <h2>Expenses</h2>
-                <div class="info-grid">
-                    <div class="info-item">
-                        <span class="label">Total Expenses:</span>
-                        <span class="value">$5,000</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">Status:</span>
-                        <span class="value status-pending">Pending</span>
-                    </div>
-                </div>
-                <a href="/student/Payment" class="pay-button">Pay</a>
-                <a href="/student/RegistrationOfMaterials" class="pay-button">Registration of materials</a>
-            </div>
-        </div>
-    </div>
-</body>
-</html>-->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -126,15 +22,13 @@
 
   <div class="container">
     <div class="profile-header">
-      <div class="profile-picture">
-        <img src="../images/my profile picture.jpg" alt="Profile Picture">
-      </div>
       <div class="profile-title">
         <h1 id="studentName">Loading...</h1>
       </div>
     </div>
 
     <div class="profile-content">
+      <!-- Personal Information -->
       <div class="info-section">
         <h2>Personal Information</h2>
         <div class="info-grid">
@@ -143,20 +37,13 @@
             <span class="value" id="name">-</span>
           </div>
           <div class="info-item">
-            <span class="label">SSN:</span>
-            <span class="value">************</span>
-          </div>
-          <div class="info-item">
-            <span class="label">Phone Number:</span>
-            <span class="value">************</span>
-          </div>
-          <div class="info-item">
             <span class="label">Academic ID:</span>
             <span class="value" id="academicId">-</span>
           </div>
         </div>
       </div>
 
+      <!-- Academic Information -->
       <div class="info-section">
         <h2>Academic Information</h2>
         <div class="info-grid">
@@ -165,16 +52,12 @@
             <span class="value" id="academicYear">-</span>
           </div>
           <div class="info-item">
-            <span class="label">High School Grades:</span>
-            <span class="value">********</span>
-          </div>
-          <div class="info-item">
             <span class="label">Email:</span>
             <span class="value" id="email">-</span>
           </div>
           <div class="info-item">
             <span class="label">Password:</span>
-            <span class="value">********</span>
+            <span class="value" id="password">-</span>
           </div>
           <div class="info-item">
             <span class="label">GPA:</span>
@@ -182,11 +65,12 @@
           </div>
           <div class="info-item">
             <span class="label">Credit Hours:</span>
-            <span class="value">********</span>
+            <span class="value" id="creditHours">-</span>
           </div>
         </div>
       </div>
 
+      <!-- Expenses -->
       <div class="info-section">
         <h2>Expenses</h2>
         <div class="info-grid">
@@ -199,7 +83,7 @@
             <span class="value status-pending" id="status">-</span>
           </div>
         </div>
-        <a href="/student/Payment" class="pay-button">Pay</a>
+        <a id="payButton" href="/student/Payment" class="pay-button">Pay</a>
         <a href="/student/RegistrationOfMaterials" class="pay-button">Registration of materials</a>
       </div>
     </div>
@@ -208,7 +92,7 @@
   <!-- JavaScript to fetch and display profile -->
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
-      const token = localStorage.getItem("token"); // assuming JWT is stored here
+      const token = localStorage.getItem("token");
 
       if (!token) {
         alert("You are not logged in.");
@@ -223,9 +107,7 @@
           }
         });
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch profile data");
-        }
+        if (!response.ok) throw new Error("Failed to fetch profile data");
 
         const data = await response.json();
 
@@ -235,12 +117,18 @@
         document.getElementById("email").textContent = data.AcademicEmail;
         document.getElementById("gpa").textContent = data.GPA;
         document.getElementById("academicYear").textContent = data.AcademicYear;
+        document.getElementById("password").textContent = data.Password;
+        document.getElementById("creditHours").textContent = data.EnrolledCourses * 3;
         document.getElementById("tuition").textContent = `$${data.TuitionFees.toFixed(2)}`;
         document.getElementById("status").textContent = data.TuitionFeesStatus;
 
         if (data.TuitionFeesStatus === "Paid") {
           document.getElementById("status").classList.remove("status-pending");
           document.getElementById("status").classList.add("status-paid");
+
+          // Hide the pay button if fees are already paid
+          const payBtn = document.getElementById("payButton");
+          if (payBtn) payBtn.style.display = "none";
         }
 
       } catch (err) {

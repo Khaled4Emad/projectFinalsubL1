@@ -58,9 +58,8 @@
             <button type="submit" class="add-card-btn">Pay</button>
         </form>
     </div>
-    <script src="Payment.js"></script>
+
     <script>
-        // Card flip logic
         const card = document.getElementById('creditCard');
         const cvvInput = document.getElementById('cvv');
         const formInputs = document.querySelectorAll('.payment-form input');
@@ -72,19 +71,19 @@
             card.classList.remove('flipped');
         });
         formInputs.forEach(input => {
-            if(input.id !== 'cvv') {
+            if (input.id !== 'cvv') {
                 input.addEventListener('focus', () => {
                     card.classList.remove('flipped');
                 });
             }
         });
 
-        // Card number formatting and live display
+        // Card number formatting
         const cardNumberInput = document.getElementById('cardNumber');
         const cardNumberDisplay = document.getElementById('cardNumberDisplay');
-        cardNumberInput.addEventListener('input', function(e) {
-            let value = this.value.replace(/\D/g, ''); // Remove non-digits
-            value = value.slice(0, 16); // Limit to 16 digits
+        cardNumberInput.addEventListener('input', function () {
+            let value = this.value.replace(/\D/g, '');
+            value = value.slice(0, 16);
             let formatted = value.replace(/(.{4})/g, '$1 ').trim();
             this.value = formatted;
             cardNumberDisplay.textContent = formatted.padEnd(19, 'X').replace(/ /g, ' ');
@@ -93,7 +92,7 @@
         // Card holder live display
         const cardHolderInput = document.getElementById('cardHolder');
         const cardHolderDisplay = document.getElementById('cardHolderDisplay');
-        cardHolderInput.addEventListener('input', function() {
+        cardHolderInput.addEventListener('input', function () {
             let value = this.value.toUpperCase();
             cardHolderDisplay.textContent = value || 'CARD HOLDER';
         });
@@ -101,28 +100,61 @@
         // Expiry live display
         const expiryInput = document.getElementById('expiryDate');
         const expiryDisplay = document.getElementById('expiryDisplay');
-        expiryInput.addEventListener('input', function() {
+        expiryInput.addEventListener('input', function () {
             let value = this.value.replace(/[^0-9]/g, '');
             if (value.length > 4) value = value.slice(0, 4);
-            if (value.length > 2) value = value.slice(0,2) + '/' + value.slice(2);
+            if (value.length > 2) value = value.slice(0, 2) + '/' + value.slice(2);
             this.value = value;
             expiryDisplay.textContent = value || 'MM/YY';
         });
 
         // CVV live display
         const cvvDisplay = document.getElementById('cvvDisplay');
-        cvvInput.addEventListener('input', function() {
+        cvvInput.addEventListener('input', function () {
             let value = this.value.replace(/\D/g, '');
             value = value.slice(0, 4);
             this.value = value;
             cvvDisplay.textContent = value || 'XXXX';
         });
 
-        // Show alert on pay
-        document.getElementById('paymentForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('paid successfully');
+        document.getElementById('paymentForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    try {
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            alert('User is not authenticated.');
+            return;
+        }
+
+        const response = await fetch('http://localhost:3000/api/student/Payment', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
         });
+
+        let data = {};
+        try {
+            data = await response.json();
+        } catch (jsonErr) {
+            console.error('Failed to parse JSON:', jsonErr);
+        }
+
+        if (response.ok) {
+            alert(data.message || 'Tuition fees paid successfully.');
+        } else {
+            alert(data.message || 'Payment failed.');
+        }
+
+    } catch (err) {
+        console.error('Network or server error:', err);
+        alert('An error occurred while processing the payment.');
+    }
+});
+
     </script>
 </body>
 </html>
