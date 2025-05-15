@@ -1,95 +1,82 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const form = document.getElementById("add-student-form");
-    const courseSelect = document.getElementById("TaughtCourses");
-    const messageDiv = document.getElementById("add-student-message");
+document.addEventListener("DOMContentLoaded", async () => {
+  const token = localStorage.getItem("token");
+  const courseSelect = document.getElementById("TaughtCourses");
 
-    // Fetch and populate unassigned courses
-    async function loadUnassignedCourses() {
-        const token = localStorage.getItem("token");
-        if (!token) {
-        alert("Unauthorized: Admin token is missing.");
-        return;
-        }
-
-        try {
-        const res = await fetch("/api/admin/unassigned-courses", {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-
-        if (!res.ok) {
-            throw new Error(`HTTP error! status: ${res.status}`);
-        }
-
-        const data = await res.json();
-        if (data.success) {
-            courseSelect.innerHTML = '<option value="" disabled selected>Select a course</option>';
-            data.courses.forEach(course => {
-            const option = document.createElement("option");
-            option.value = course.CourseName;
-            option.textContent = course.CourseName;
-            courseSelect.appendChild(option);
-            });
-        } else {
-            console.error("Failed to load courses:", data.message);
-        }
-        } catch (err) {
-        console.error("Error loading courses:", err);
-        }
-    }
-
-    loadUnassignedCourses();
-
-    // Handle form submission
-    form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const token = localStorage.getItem("token");
-        if (!token) {
-        alert("Unauthorized: Admin token is missing.");
-        return;
-        }
-
-        const formData = new FormData(form);
-        const selectedCourse = courseSelect.value;
-
-        if (!selectedCourse) {
-        messageDiv.style.color = "red";
-        messageDiv.textContent = "Please select a course.";
-        return;
-        }
-
-        const payload = {
-        ProfessorID: parseInt(formData.get("ProfessorID")),
-        Name: formData.get("FullName"),
-        Email: formData.get("Email"),
-        Password: formData.get("password"),
-        courseNames: [selectedCourse]
-        };
-
-        try {
-        const res = await fetch("/api/admin/add-professor", {
-            method: "POST",
-            headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify(payload)
-        });
-
-        const data = await res.json();
-
-        if (res.ok && data.success) {
-            messageDiv.style.color = "green";
-            messageDiv.textContent = data.message || "Professor added successfully.";
-            form.reset();
-            loadUnassignedCourses(); // Refresh course list
-        } else {
-            messageDiv.style.color = "red";
-            messageDiv.textContent = data.message || "Failed to add professor.";
-        }
-        } catch (err) {
-        console.error("Add professor error:", err);
-        messageDiv.style.color = "red";
-        messageDiv.textContent = "An error occurred while adding the professor.";
-        }
+  try {
+    const response = await fetch("/api/admin/unassigned-courses", {
+      headers: {
+        Authorization: "Bearer " + token,
+      },
     });
+
+    const data = await response.json();
+
+    if (data.success && data.courses.length > 0) {
+      data.courses.forEach((course) => {
+        const option = document.createElement("option");
+        option.value = course.CourseName;
+        option.textContent = course.CourseName;
+        courseSelect.appendChild(option);
+      });
+    } else {
+      const option = document.createElement("option");
+      option.disabled = true;
+      option.textContent = "No unassigned courses found";
+      courseSelect.appendChild(option);
+    }
+  } catch (error) {
+    console.error("Failed to load unassigned courses:", error);
+  }
 });
+
+document
+  .getElementById("add-student-form")
+  .addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const form = e.target;
+    const ProfessorID = parseInt(form.ProfessorID.value);
+    const Name = form.FullName.value;
+    const Email = form.Email.value;
+    const Password = form.password.value;
+    const courseNames = Array.from(form.TaughtCourses.selectedOptions).map(
+      (opt) => opt.value
+    );
+
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch("/api/admin/add-professor", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+        body: JSON.stringify({
+          ProfessorID,
+          Name,
+          Email,
+          Password,
+          courseNames,
+        }),
+      });
+
+      const data = await res.json();
+      const msgBox = document.getElementById("add-student-message");
+
+      if (data.success) {
+        msgBox.style.color = "green";
+        msgBox.textContent = "Professor added successfully.";
+        setTimeout(() => {
+          location.reload();
+        }, 1500);
+      } else {
+        msgBox.style.color = "red";
+        msgBox.textContent = data.message || "Error occurred.";
+      }
+    } catch (err) {
+      console.error("Error submitting form:", err);
+      document.getElementById("add-student-message").textContent =
+        "Something went wrong.";
+    }
+  });

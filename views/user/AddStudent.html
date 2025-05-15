@@ -10,7 +10,7 @@
 </head>
 <body>
     <div class="sidebar">
-
+     
         <h2>Admin</h2>
       <hr />
       <ul>
@@ -28,9 +28,15 @@
     <div class="main-content">
         <div class="navbar">
             <div class="logo"><img src="../images/fcilogo.jpg"></div>
-            <div class="search-container2">
+            <!--<div class="search-container2">
                 <input type="text" id="search-field" placeholder="Search by Academic ID">
                 <a href="/admin/SearchResult"><button id="search-button">Search</button></a>
+            </div>-->
+            <div class="search-container2">
+              <form id="search-form" action="/admin/SearchResult" method="GET" onsubmit="return handleSearch(event)">
+                <input type="text" id="search-field" name="academicId" placeholder="Search by Academic ID" required />
+                <button type="submit" id="search-button">Search</button>
+              </form>
             </div>
         </div>
 

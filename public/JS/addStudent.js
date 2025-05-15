@@ -47,3 +47,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
+
+
+//////////////////
+function handleSearch(event) {
+    const input = document.getElementById('search-field');
+    if (!input.value.trim()) {
+      alert("Please enter an Academic ID to search.");
+      event.preventDefault();
+      return false;
+    }
+    return true;
+  }

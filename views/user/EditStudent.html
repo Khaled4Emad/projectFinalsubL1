@@ -1,49 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
-    <link rel="icon" href="../images/adminlogo.jpg"/>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css"
+    />
+    <link rel="icon" href="../images/adminlogo.jpg" />
     <title>Edit Student</title>
-    <link rel="stylesheet" href="../CSS/Admin.css">
-</head>
-<body>
+    <link rel="stylesheet" href="../CSS/Admin.css" />
+  </head>
+  <body>
     <div class="sidebar">
-        <h2>Admin</h2>
-        <hr>
-        <ul>
-            <li id="home-link"><a href="/Admin"><i class="fa-solid fa-house"></i>Home</a></li>
-        </ul>
+      <h2>Admin</h2>
+      <hr />
+      <ul>
+        <li id="home-link">
+          <a href="/Admin"><i class="fa-solid fa-house"></i>Home</a>
+        </li>
+      </ul>
     </div>
     <div class="main-content">
-        <div class="navbar">
-            <div class="logo"><img src="../images/fcilogo.jpg"></div>
-            <div class="search-container">
-                <form action="/admin/SearchResult">
-                    <input type="text" name="academic_id" placeholder="Search by Academic ID" required>
-                    <button id="search-button">Search</button>
-                </form>
-            </div>
+      <div class="navbar">
+        <div class="logo"><img src="../images/fcilogo.jpg" /></div>
+        <div class="search-container">
+          <form action="/admin/SearchResult">
+            <input
+              type="text"
+              name="academic_id"
+              placeholder="Search by Academic ID"
+              required
+            />
+            <button id="search-button">Search</button>
+          </form>
         </div>
-        <div class="changed-section" id="edit-student-section">
-            <form >
-                <input type="text" required>
-                <input type="text" required>
-                <input type="text" required>
-                <input type="text" required>
-                <input type="text">
-                <input type="password" required>
-                <input type="text" required>
-                <input type="text" required>
-                <input type="text" required>
-                <input type="file">
-                <input type="text" required>
-                <input type="text" required>
-                <button type="submit">Edit</button>
-            </form>
-        </div>
+      </div>
+      <div class="changed-section" id="edit-student-section">
+        <form id="editStudentForm">
+          <input
+            type="text"
+            name="AcademicID"
+            placeholder="Academic ID"
+            readonly
+            required
+          />
+          <input
+            type="email"
+            name="AcademicEmail"
+            placeholder="Email"
+            required
+          />
+          <input type="text" name="Name" placeholder="Name" required />
+          <input type="text" name="GPA" placeholder="GPA" required />
+          <input
+            type="text"
+            name="AcademicYear"
+            placeholder="Academic Year"
+            required
+          />
+          <input
+            type="text"
+            name="Password"
+            placeholder="Password"
+            required
+          />
+          <input
+            type="text"
+            name="TuitionFees"
+            placeholder="Tuition Fees"
+            required
+          />
+          <input
+            type="text"
+            name="TuitionFeesStatus"
+            placeholder="Status"
+            required
+          />
+
+          <button type="submit">Edit</button>
+        </form>
+      </div>
     </div>
-    <script src="../JS/Admin.js"></script>
-</body>
+    <script src="../JS/editStudent.js"></script>
+  </body>
 </html>

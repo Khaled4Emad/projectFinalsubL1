@@ -868,6 +868,171 @@ app.post("/api/admin/add-professor", authenticateJWTadmin, async (req, res) => {
     }
   }
 });
+//search student
+app.get("/api/admin/search-student", authenticateJWTadmin, async (req, res) => {
+  const academicId = req.query.academicId;
+
+  if (!academicId || isNaN(academicId)) {
+    return res.status(400).json({ success: false, message: "Invalid or missing Academic ID." });
+  }
+
+  try {
+    const pool = await poolPromise;
+    const request = pool.request();
+    request.input("AcademicID", sql.Int, academicId);
+
+    // Fetch student info from StudentsDB
+    const studentResult = await request.query(`
+      SELECT AcademicID, AcademicEmail, Password, Name, GPA, AcademicYear, TuitionFees, TuitionFeesStatus
+      FROM Students
+      WHERE AcademicID = @AcademicID
+    `);
+
+    if (studentResult.recordset.length === 0) {
+      return res.status(404).json({ success: false, message: "Student not found." });
+    }
+
+    const student = studentResult.recordset[0];
+
+    // Count enrolled courses for this student
+    const enrollmentCountResult = await request.query(`
+      SELECT COUNT(*) AS EnrolledCoursesCount
+      FROM StudentEnrollments
+      WHERE AcademicID = @AcademicID
+    `);
+
+    const enrolledCoursesCount = enrollmentCountResult.recordset[0].EnrolledCoursesCount || 0;
+
+    res.status(200).json({
+      success: true,
+      student: {
+        ...student,
+        EnrolledCoursesCount: enrolledCoursesCount
+      }
+    });
+
+  } catch (err) {
+    console.error("Error fetching student:", err);
+    res.status(500).json({ success: false, message: "Server error." });
+  }
+});
+//edit student
+app.put("/api/admin/edit-student", authenticateJWTadmin, async (req, res) => {
+  const {
+    AcademicID,
+    AcademicEmail,
+    Password,
+    GPA,
+    Name,
+    AcademicYear,
+    TuitionFees,
+    TuitionFeesStatus
+  } = req.body;
+
+  if (!AcademicID || isNaN(AcademicID)) {
+    return res.status(400).json({ success: false, message: "Invalid or missing AcademicID." });
+  }
+
+
+  try {
+    const pool = await poolPromise;
+    const request = pool.request();
+
+    request.input("AcademicID", sql.Int, AcademicID);
+    request.input("AcademicEmail", sql.NVarChar(100), AcademicEmail);
+    request.input("Password", sql.NVarChar(100), Password);
+    request.input("GPA", sql.Decimal(3, 2), GPA);
+    request.input("Name", sql.NVarChar(100), Name);
+    request.input("AcademicYear", sql.Int, AcademicYear);
+    request.input("TuitionFees", sql.Decimal(10, 2), TuitionFees);
+    request.input("TuitionFeesStatus", sql.NVarChar(10), TuitionFeesStatus);
+
+    const query = `
+      UPDATE Students
+      SET AcademicEmail = @AcademicEmail,
+          Password = @Password,
+          GPA = @GPA,
+          Name = @Name,
+          AcademicYear = @AcademicYear,
+          TuitionFees = @TuitionFees,
+          TuitionFeesStatus = @TuitionFeesStatus
+      WHERE AcademicID = @AcademicID
+    `;
+
+    const result = await request.query(query);
+
+    if (result.rowsAffected[0] === 0) {
+      return res.status(404).json({ success: false, message: "Student not found." });
+    }
+
+    res.status(200).json({ success: true, message: "Student data updated successfully." });
+  } catch (err) {
+    console.error("Error updating student:", err);
+    res.status(500).json({ success: false, message: "Server error." });
+  }
+});
+
+//delete student
+app.delete("/api/admin/delete-student", authenticateJWTadmin, async (req, res) => {
+  const { academicId } = req.body;
+
+  if (!academicId || isNaN(academicId)) {
+    return res.status(400).json({ success: false, message: "Invalid or missing Academic ID." });
+  }
+
+  try {
+    const pool = await poolPromise;
+    const request = pool.request();
+
+    await request.input("AcademicID", sql.Int, academicId);
+
+    await request.query(`
+      DELETE FROM StudentEnrollments WHERE AcademicID = @AcademicID
+    `);
+    const result = await request.query(`
+      DELETE FROM Students WHERE AcademicID = @AcademicID
+    `);
+
+    if (result.rowsAffected[0] === 0) {
+      return res.status(404).json({ success: false, message: "Student not found." });
+    }
+
+    res.status(200).json({ success: true, message: "Student and their enrollments deleted successfully." });
+
+  } catch (err) {
+    console.error("Error deleting student and enrollments:", err);
+    res.status(500).json({ success: false, message: "Server error." });
+  }
+});
+
+/*
+app.delete("/api/admin/delete-student", authenticateJWTadmin, async (req, res) => {
+  const { academicId } = req.body;
+
+  if (!academicId || isNaN(academicId)) {
+    return res.status(400).json({ success: false, message: "Invalid or missing Academic ID." });
+  }
+
+  try {
+    const pool = await poolPromise;
+    const request = pool.request();
+    request.input("AcademicID", sql.Int, academicId);
+
+    const result = await request.query(`
+      DELETE FROM Students WHERE AcademicID = @AcademicID
+    `);
+
+    if (result.rowsAffected[0] === 0) {
+      return res.status(404).json({ success: false, message: "Student not found." });
+    }
+
+    res.status(200).json({ success: true, message: "Student deleted successfully." });
+  } catch (err) {
+    console.error("Error deleting student:", err);
+    res.status(500).json({ success: false, message: "Server error." });
+  }
+});*/
+
 
 //! courses
 
@@ -891,6 +1056,8 @@ app.get("/api/admin/unassigned-courses", authenticateJWTadmin, async (req, res) 
     res.status(500).json({ success: false, message: "Server error." });
   }
 });
+
+
 
 // Start the server
 app.listen(port, () => {
